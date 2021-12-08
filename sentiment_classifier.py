@@ -24,7 +24,6 @@ from transformers import AutoConfig, AutoModelForSequenceClassification
 # =============================================================================
 # We used Pytorch Lighting for rapid prototyping 
 # ---> encapuslates the training loop
-#----- We are able to use basically the same model as in our original testing except we change the loss function and one line of code in the forward() pass
 # =============================================================================
 class Lit_SequenceClassification(pl.LightningModule):
     
@@ -46,19 +45,10 @@ class Lit_SequenceClassification(pl.LightningModule):
     def save_model(self):
         #torch.save(self.state_dict(), self.save_fp)
         self.encoder.save_pretrained(self.save_fp)
-    
-    '''
-    def load_model(self, fp):
-        self.load_state_dict(torch.load(fp))
-    '''
 
     def forward(self, input_ids, attention_mask):
         
         outputs = self.encoder(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
-        #logits = self.softmax(outputs.logits)
-        
-        
-        #we return the outputs so that we can also evaluate the model using classification metrics if we so wish
         return outputs.logits
     
     def configure_optimizers(self):
@@ -68,7 +58,6 @@ class Lit_SequenceClassification(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         
         logits = self.forward(input_ids= batch['input_ids'], attention_mask=batch['attention_mask'])
-        #loss = self.criterion(logits, batch['label'])
         loss = torch.nn.functional.cross_entropy(logits, batch['label'])
         return {'loss':loss, 'train_loss':loss}
     
@@ -83,9 +72,6 @@ class Lit_SequenceClassification(pl.LightningModule):
 
         logits = self.forward(input_ids= batch['input_ids'], attention_mask=batch['attention_mask'])
         loss = torch.nn.functional.cross_entropy(logits, batch['label'])
-    
-        #loss = self.criterion(logits, batch['label'])
-
         return {'val_loss':loss}
   
     def validation_epoch_end(self, losses):
@@ -116,8 +102,7 @@ def train_LitModel(model, train_dataset, val_dataset, epochs, batch_size, patien
 
 
 # =============================================================================
-# This is the evaluation function for the Learn-to-Rank model
-# ---returns NDCG@2 and NDCG@4
+# This is the evaluation function
 # ---returns classification metrics using the softmax logits from the encoder
 # =============================================================================
 def model_testing(model, test_dataset):
@@ -147,9 +132,7 @@ def model_testing(model, test_dataset):
     return preds, ground_truths
 
 # =============================================================================
-# This is the evaluation function for the Learn-to-Rank model
-# ---returns NDCG@2 and NDCG@4
-# ---returns classification metrics using the softmax logits from the encoder
+# This is the evaluation function used for prediction
 # =============================================================================
 def model_prediction(model, test_dataset):
     
