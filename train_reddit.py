@@ -20,9 +20,9 @@ from sentiment_classifier import *
 
 def main():
     
-    #model_checkpoint = 'bert-base-uncased'
-    #model_checkpoint = "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis"
-    #model_checkpoint = "facebook/muppet-roberta-base"
+    #tokenizer_checkpoint = 'bert-base-uncased'
+    #tokenizer_checkpoint = "mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis"
+    tokenizer_checkpoint = "facebook/muppet-roberta-base"
     model_checkpoint = "best_phrasebank_model"
     training_dataset = 'Reddit_Data.csv'
     testing_dataset = 'Reddit_Data_Test.csv'
@@ -53,7 +53,7 @@ def main():
     max_length = 192
     
     #loading tokenizer
-    tokenizer = SentTokenizer(model_checkpoint, max_length, reddit_eval=True)
+    tokenizer = SentTokenizer(tokenizer_checkpoint, max_length, reddit_eval=True)
     
     #tokenizing the data
     train_dataset = tokenizer.encode_data(train_data)
